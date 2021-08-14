@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  fileserver:
+    container_name: fileserver
+    image: fileserver:devel
+    build: .
+    tty: true
+    command: uvicorn --host 0.0.0.0 --port 80 fileserver.app:app --reload
+    volumes:
+      - ./fileserver:/fileserver/fileserver
+      - ./db:/db:rw
+      # - /data/to/mount:/data:ro
+    environment:
+      NUM_WORKERS: 4
+      DB_PATH: /db/file_hash.db
+    ports:
+      - 80:80
