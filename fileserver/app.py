@@ -1,12 +1,18 @@
-from pathlib import Path
+import os
 from typing import Dict, List
 
 import pydantic
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from celery import Celery
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from . import sqlite
-from .crawler import crawl
+
+celery_app = Celery(
+    "celery",
+    broker=os.getenv("CELERY_RESULT_BACKEND"),
+    backend=os.getenv("CELERY_BROKER_URL"),
+)
 
 app = FastAPI()
 
@@ -37,12 +43,9 @@ def get_file(file_hash: str) -> FileResponse:
 
 
 class CrawlRequest(pydantic.BaseModel):
-    path: Path
+    path: str
 
 
 @app.post("/crawl", status_code=200)
-async def start_crawl(
-    crawl_request: CrawlRequest,
-    background_tasks: BackgroundTasks,
-) -> None:
-    background_tasks.add_task(crawl, crawl_request.path)
+async def start_crawl(crawl_request: CrawlRequest) -> None:
+    celery_app.send_task("fileserver.crawler.crawl", args=[crawl_request.path])

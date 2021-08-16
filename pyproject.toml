@@ -10,6 +10,9 @@ fastapi = "^0.68.0"
 aiofiles = "^0.7.0"
 uvicorn = "^0.14.0"
 loguru = "^0.5.3"
+celery = "^5.1.2"
+redis = "^3.5.3"
+flower = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.9.6"

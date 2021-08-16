@@ -1,4 +1,4 @@
-# FastAPI fileserver with SQLite
+# FastAPI fileserver with SQLite and Celery
 
 Simple file server used to get files in the file system based on their SHA-256 hash.
 

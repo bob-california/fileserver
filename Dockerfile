@@ -6,6 +6,7 @@ RUN apk update && apk add build-base libffi-dev libressl-dev musl-dev openssl-de
 RUN pip install --upgrade pip poetry
 
 WORKDIR /fileserver
+
 COPY poetry.lock pyproject.toml /fileserver/
 
 RUN poetry config virtualenvs.create false \

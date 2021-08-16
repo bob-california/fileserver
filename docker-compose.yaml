@@ -12,7 +12,37 @@ services:
       - ./db:/db:rw
       # - /data/to/mount:/data:ro
     environment:
-      NUM_WORKERS: 4
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
       DB_PATH: /db/file_hash.db
     ports:
       - 80:80
+
+  redis:
+    image: redis
+
+  worker:
+    container_name: worker
+    image: fileserver:devel
+    tty: true
+    command: celery -A fileserver.crawler worker -l INFO
+    volumes:
+      - ./fileserver:/fileserver/fileserver
+      - ./db:/db:rw
+      # - /data/to/mount:/data:ro
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
+      DB_PATH: /db/file_hash.db
+    depends_on:
+      - redis
+
+  flower:
+    container_name: flower
+    image: fileserver:devel
+    tty: true
+    command: celery --broker=redis://redis:6379 flower
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
